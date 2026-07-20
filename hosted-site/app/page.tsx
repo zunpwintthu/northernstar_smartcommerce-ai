@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const products = [
+type Product = {id:number; name:string; category:string; price:number; old?:number; stock:number; image:string; note:string; description?:string};
+
+const baseProducts: Product[] = [
   { id: 1, name: "Indigo Everyday Shirt", category: "Clothing", price: 35000, stock: 12, image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=900&q=85", note: "Breathable cotton, relaxed fit." },
   { id: 2, name: "Pocket Bluetooth Speaker", category: "Electronics", price: 38000, old: 42000, stock: 4, image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=900&q=85", note: "Small speaker, surprisingly full sound." },
   { id: 3, name: "Woven Market Tote", category: "Accessories", price: 28000, stock: 9, image: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?w=900&q=85", note: "Roomy, durable, and made for every day." },
@@ -18,6 +20,9 @@ export default function Home() {
   const [category, setCategory] = useState("All");
   const [cart, setCart] = useState<number[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [hostedProducts, setHostedProducts] = useState<Product[]>([]);
+  const products = [...hostedProducts, ...baseProducts];
+  useEffect(() => { fetch("/api/products").then((r) => r.json()).then((data) => setHostedProducts((data.products || []).map((p: Product) => ({...p, note: p.description || "Newly added by the SmartCommerce team."})))).catch(() => undefined); }, []);
   const filtered = useMemo(() => products.filter((p) => (category === "All" || p.category === category) && `${p.name} ${p.note}`.toLowerCase().includes(query.toLowerCase())), [category, query]);
   const cartProducts = cart.map((id) => products.find((p) => p.id === id)!);
   const total = cartProducts.reduce((sum, p) => sum + p.price, 0);
@@ -30,7 +35,7 @@ export default function Home() {
   return <>
     <header className="nav-shell">
       <a className="brand" href="#top"><span>SC</span><b>SmartCommerce</b></a>
-      <nav><a href="#shop">Shop</a><a href="#how">How it works</a><a href="#ai">AI assistant</a></nav>
+      <nav><a href="#shop">Shop</a><a href="#how">How it works</a><a href="#ai">AI assistant</a><a href="/admin">Admin / Staff</a></nav>
       <button className="bag" onClick={() => setCartOpen(true)} aria-label="Open shopping bag">Bag <span>{cart.length}</span></button>
     </header>
 
