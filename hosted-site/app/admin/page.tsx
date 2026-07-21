@@ -16,5 +16,5 @@ export default function AdminPage() {
     });
   }, [router]);
   if (!user) return <main className="admin-loading"><div className="spark">✦</div><p>Opening your workspace…</p></main>;
-  return <main className="admin-page"><header className="admin-nav"><a href="/" className="brand"><span>SC</span><b>SmartCommerce</b></a><div><span>{user.email} · {user.role}</span><button onClick={() => {sessionStorage.removeItem("smartcommerce_admin_token"); router.replace("/admin/login")}}>Sign out</button></div></header><ProductManager userEmail={user.email}/></main>;
+  return <main className="admin-page"><header className="admin-nav"><a href="/" className="brand"><img src="https://wabakdrotuavrlqyudog.supabase.co/storage/v1/object/public/product-images/brand/northern-star-logo.png" alt="Northern Star logo"/><b>SmartCommerce</b></a><div><span>{user.email} · {user.role}</span><button onClick={() => {sessionStorage.removeItem("smartcommerce_admin_token"); router.replace("/admin/login")}}>Sign out</button></div></header><ProductManager userEmail={user.email}/></main>;
 }

@@ -34,7 +34,7 @@ export default function Home() {
 
   return <>
     <header className="nav-shell">
-      <a className="brand" href="#top"><span>SC</span><b>SmartCommerce</b></a>
+      <a className="brand" href="#top"><img src="https://wabakdrotuavrlqyudog.supabase.co/storage/v1/object/public/product-images/brand/northern-star-logo.png" alt="Northern Star logo"/><b>SmartCommerce</b></a>
       <nav><a href="#shop">Shop</a><a href="#how">How it works</a><a href="#ai">AI assistant</a><a href="/admin">Admin / Staff</a></nav>
       <button className="bag" onClick={() => setCartOpen(true)} aria-label="Open shopping bag">Bag <span>{cart.length}</span></button>
     </header>
@@ -68,7 +68,7 @@ export default function Home() {
       <section className="ai" id="ai"><div className="spark">✦</div><p className="eyebrow">Grounded in real store data</p><h2>Meet your shopping assistant.</h2><p>Ask about products, availability, delivery, or payment. SmartCommerce AI uses controlled business tools so prices and stock are never invented.</p><div className="prompt"><span>Show me products below 50,000 MMK</span><button onClick={() => {setQuery(""); setCategory("All"); document.querySelector("#shop")?.scrollIntoView({behavior:"smooth"})}}>→</button></div></section>
     </main>
 
-    <footer><div className="brand"><span>SC</span><b>SmartCommerce</b></div><p>Flexible commerce for connected communities.</p><a href="https://github.com/zunpwintthu/northernstar_smartcommerce-ai">View the full project on GitHub ↗</a></footer>
+    <footer><div className="brand"><img src="https://wabakdrotuavrlqyudog.supabase.co/storage/v1/object/public/product-images/brand/northern-star-logo.png" alt="Northern Star logo"/><b>SmartCommerce</b></div><p>Flexible commerce for connected communities.</p><a href="https://github.com/zunpwintthu/northernstar_smartcommerce-ai">View the full project on GitHub ↗</a></footer>
 
     <div className={`overlay ${cartOpen ? "show" : ""}`} onClick={() => setCartOpen(false)}></div>
     <aside className={`drawer ${cartOpen ? "open" : ""}`} aria-hidden={!cartOpen}><div className="drawer-head"><div><p className="eyebrow">Your selection</p><h2>Shopping bag</h2></div><button onClick={() => setCartOpen(false)}>×</button></div>
