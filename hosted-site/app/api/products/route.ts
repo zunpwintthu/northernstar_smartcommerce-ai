@@ -27,9 +27,9 @@ export async function GET() {
     const response = await fetch(`${runtime.SUPABASE_URL}/rest/v1/products?select=id,name,slug,category,description,price,stock,image_url,featured&active=eq.true&order=created_at.desc`, { headers: { apikey: runtime.SUPABASE_ANON_KEY!, Authorization: `Bearer ${runtime.SUPABASE_ANON_KEY}` }, cache: "no-store" });
     if (!response.ok) throw new Error("Supabase product query failed.");
     const rows = await response.json() as Array<Record<string, unknown>>;
-    return Response.json({ products: rows.map((p) => ({...p, image: p.image_url})) });
+    return Response.json({ products: rows.map((p) => ({...p, image: p.image_url})) }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch (error) {
-    return Response.json({ products: [], setupRequired: true, error: error instanceof Error ? error.message : "Database unavailable" });
+    return Response.json({ products: [], setupRequired: true, error: error instanceof Error ? error.message : "Database unavailable" }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   }
 }
 

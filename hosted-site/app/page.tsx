@@ -22,7 +22,7 @@ export default function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const [hostedProducts, setHostedProducts] = useState<Product[]>([]);
   const products = [...hostedProducts, ...baseProducts];
-  useEffect(() => { fetch("/api/products").then((r) => r.json()).then((data) => setHostedProducts((data.products || []).map((p: Product) => ({...p, note: p.description || "Newly added by the SmartCommerce team."})))).catch(() => undefined); }, []);
+  useEffect(() => { fetch(`/api/products?fresh=${Date.now()}`, {cache:"no-store"}).then((r) => r.json()).then((data) => setHostedProducts((data.products || []).map((p: Product) => ({...p, note: p.description || "Newly added by the SmartCommerce team."})))).catch(() => undefined); }, []);
   const filtered = useMemo(() => products.filter((p) => (category === "All" || p.category === category) && `${p.name} ${p.note}`.toLowerCase().includes(query.toLowerCase())), [category, query]);
   const cartProducts = cart.map((id) => products.find((p) => p.id === id)!);
   const total = cartProducts.reduce((sum, p) => sum + p.price, 0);

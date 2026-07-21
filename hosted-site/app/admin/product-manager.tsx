@@ -9,19 +9,22 @@ export default function ProductManager({ userEmail }: {userEmail:string}) {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState("");
-  useEffect(() => { fetch("/api/products").then((r) => r.json()).then((x) => setProducts(x.products || [])); }, []);
+  useEffect(() => { fetch(`/api/products?fresh=${Date.now()}`, {cache:"no-store"}).then((r) => r.json()).then((x) => setProducts(x.products || [])); }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setBusy(true); setMessage("");
+    event.preventDefault(); setBusy(true); setMessage("Uploading product image…");
     const form = event.currentTarget;
     const formData = new FormData(form);
     const token = sessionStorage.getItem("smartcommerce_admin_token");
     const image = formData.get("image");
     const uploadData = new FormData();
     if (image instanceof File) uploadData.append("image", image);
-    const uploadResponse = await fetch("/api/admin/upload", {method:"POST", headers:{Authorization:`Bearer ${token}`}, body:uploadData});
+    let uploadResponse: Response;
+    try { uploadResponse = await fetch("/api/admin/upload", {method:"POST", headers:{Authorization:`Bearer ${token}`}, body:uploadData}); }
+    catch { setBusy(false); setMessage("The upload was interrupted. Check your connection and try again."); return; }
     const upload = await uploadResponse.json();
     if (!uploadResponse.ok) { setBusy(false); setMessage(upload.error || "Could not upload this image."); return; }
+    setMessage("Image uploaded. Saving product…");
     const values = Object.fromEntries(formData);
     const response = await fetch("/api/products", {method:"POST", headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`}, body:JSON.stringify({...values, imageUrl:upload.url, price:Number(values.price), stock:Number(values.stock), featured:values.featured === "on"})});
     const data = await response.json(); setBusy(false);
