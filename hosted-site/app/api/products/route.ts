@@ -1,12 +1,9 @@
 import { env } from "cloudflare:workers";
-import { getChatGPTUser } from "../../chatgpt-auth";
 
 type RuntimeEnv = {
   SUPABASE_URL?: string;
   SUPABASE_ANON_KEY?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
-  ADMIN_EMAILS?: string;
-  STAFF_EMAILS?: string;
 };
 
 function config() {
@@ -15,9 +12,13 @@ function config() {
   return runtime;
 }
 
-function allowed(email: string, runtime: RuntimeEnv) {
-  const users = `${runtime.ADMIN_EMAILS || ""},${runtime.STAFF_EMAILS || ""}`.toLowerCase().split(",").map((x) => x.trim()).filter(Boolean);
-  return users.includes(email.toLowerCase());
+async function authenticatedStaff(request: Request, runtime: RuntimeEnv) {
+  const authorization = request.headers.get("Authorization");
+  if (!authorization?.startsWith("Bearer ")) return null;
+  const response = await fetch(`${runtime.SUPABASE_URL}/auth/v1/user`, { headers: { apikey: runtime.SUPABASE_ANON_KEY!, Authorization: authorization }, cache: "no-store" });
+  if (!response.ok) return null;
+  const user = await response.json() as {id:string; email?:string; app_metadata?:{role?:string}};
+  return ["admin", "staff", "super_admin"].includes(user.app_metadata?.role || "") ? user : null;
 }
 
 export async function GET() {
@@ -33,17 +34,16 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const user = await getChatGPTUser();
-  if (!user) return Response.json({ error: "Sign in is required." }, { status: 401 });
   const runtime = config();
-  if (!allowed(user.email, runtime)) return Response.json({ error: "Your account does not have admin or staff access." }, { status: 403 });
+  const user = await authenticatedStaff(request, runtime);
+  if (!user) return Response.json({ error: "A valid admin or staff login is required." }, { status: 401 });
   if (!runtime.SUPABASE_SERVICE_ROLE_KEY) return Response.json({ error: "Supabase server credentials are not configured." }, { status: 503 });
   const body = await request.json() as Record<string, unknown>;
   const name = String(body.name || "").trim(), category = String(body.category || "").trim(), description = String(body.description || "").trim(), imageUrl = String(body.imageUrl || "").trim();
   const price = Number(body.price), stock = Number(body.stock);
   if (name.length < 2 || !category || description.length < 4 || !Number.isFinite(price) || price <= 0 || !Number.isInteger(stock) || stock < 0) return Response.json({ error: "Please provide valid product details." }, { status: 400 });
   try { new URL(imageUrl); } catch { return Response.json({ error: "Image URL must be a valid web address." }, { status: 400 }); }
-  const product = { name, slug: `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now().toString(36)}`, category, description, price, stock, image_url: imageUrl, featured: Boolean(body.featured), active: true, created_by: user.email };
+  const product = { name, slug: `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now().toString(36)}`, category, description, price, stock, image_url: imageUrl, featured: Boolean(body.featured), active: true, created_by: user.email || user.id };
   const response = await fetch(`${runtime.SUPABASE_URL}/rest/v1/products`, { method: "POST", headers: { apikey: runtime.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${runtime.SUPABASE_SERVICE_ROLE_KEY}`, "Content-Type": "application/json", Prefer: "return=representation" }, body: JSON.stringify(product) });
   if (!response.ok) return Response.json({ error: "Supabase could not save this product." }, { status: 502 });
   const [saved] = await response.json() as Array<Record<string, unknown>>;

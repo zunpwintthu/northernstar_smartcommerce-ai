@@ -13,7 +13,8 @@ export default function ProductManager({ userEmail }: {userEmail:string}) {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setMessage("");
     const form = event.currentTarget; const values = Object.fromEntries(new FormData(form));
-    const response = await fetch("/api/products", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({...values, price:Number(values.price), stock:Number(values.stock), featured:values.featured === "on"})});
+    const token = sessionStorage.getItem("smartcommerce_admin_token");
+    const response = await fetch("/api/products", {method:"POST", headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`}, body:JSON.stringify({...values, price:Number(values.price), stock:Number(values.stock), featured:values.featured === "on"})});
     const data = await response.json(); setBusy(false);
     if (!response.ok) { setMessage(data.error || "Could not save this product."); return; }
     setProducts((items) => [data, ...items]); setMessage("Product published to the storefront."); form.reset();
