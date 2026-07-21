@@ -2,16 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-type Product = {id:number; name:string; category:string; price:number; old?:number; stock:number; image:string; note:string; description?:string};
-
-const baseProducts: Product[] = [
-  { id: 1, name: "Indigo Everyday Shirt", category: "Clothing", price: 35000, stock: 12, image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=900&q=85", note: "Breathable cotton, relaxed fit." },
-  { id: 2, name: "Pocket Bluetooth Speaker", category: "Electronics", price: 38000, old: 42000, stock: 4, image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=900&q=85", note: "Small speaker, surprisingly full sound." },
-  { id: 3, name: "Woven Market Tote", category: "Accessories", price: 28000, stock: 9, image: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?w=900&q=85", note: "Roomy, durable, and made for every day." },
-  { id: 4, name: "Quiet Morning Ceramic Set", category: "Home", price: 46000, stock: 7, image: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=900&q=85", note: "Hand-finished ceramics for slow mornings." },
-  { id: 5, name: "Everyday Wireless Earbuds", category: "Electronics", price: 49000, stock: 3, image: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=900&q=85", note: "Clear calls and a pocket-sized charging case." },
-  { id: 6, name: "Soft Cotton Overshirt", category: "Clothing", price: 41000, stock: 8, image: "https://images.unsplash.com/photo-1603252110481-7ba873bf42ab?w=900&q=85", note: "An easy layer for changing weather." },
-];
+type Product = {id:number; name:string; category:string; price:number; original_price?:number; discount_percent?:number; stock:number; image:string; note:string; description?:string};
 
 const money = (value: number) => `${new Intl.NumberFormat("en-US").format(value)} MMK`;
 
@@ -21,7 +12,7 @@ export default function Home() {
   const [cart, setCart] = useState<number[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [hostedProducts, setHostedProducts] = useState<Product[]>([]);
-  const products = [...hostedProducts, ...baseProducts];
+  const products = hostedProducts;
   useEffect(() => { fetch(`/api/products?fresh=${Date.now()}`, {cache:"no-store"}).then((r) => r.json()).then((data) => setHostedProducts((data.products || []).map((p: Product) => ({...p, note: p.description || "Newly added by the SmartCommerce team."})))).catch(() => undefined); }, []);
   const filtered = useMemo(() => products.filter((p) => (category === "All" || p.category === category) && `${p.name} ${p.note}`.toLowerCase().includes(query.toLowerCase())), [category, query]);
   const cartProducts = cart.map((id) => products.find((p) => p.id === id)!);
@@ -56,9 +47,9 @@ export default function Home() {
         <div className="section-title"><div><p className="eyebrow">Freshly selected</p><h2>Find something useful.</h2></div><label className="search"><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search the collection" aria-label="Search products"/></label></div>
         <div className="filters">{["All", "Clothing", "Electronics", "Accessories", "Home"].map((c) => <button className={category === c ? "active" : ""} onClick={() => setCategory(c)} key={c}>{c}</button>)}</div>
         <div className="product-grid">{filtered.map((p) => <article className="product" key={p.id}>
-          <div className="product-image"><img src={p.image} alt={p.name}/>{p.old && <span className="sale">Sale</span>}<button onClick={() => add(p.id)} aria-label={`Add ${p.name} to bag`}>＋</button></div>
+          <div className="product-image"><img src={p.image} alt={p.name}/>{Boolean(p.discount_percent) && <span className="sale">-{p.discount_percent}%</span>}<button onClick={() => add(p.id)} aria-label={`Add ${p.name} to bag`}>＋</button></div>
           <p className="category">{p.category}</p><h3>{p.name}</h3><p className="note">{p.note}</p>
-          <div className="price"><b>{money(p.price)}</b>{p.old && <s>{money(p.old)}</s>}<small>{p.stock <= 4 ? `Only ${p.stock} left` : "In stock"}</small></div>
+          <div className="price"><b>{money(p.price)}</b>{p.original_price && p.original_price > p.price ? <s>{money(p.original_price)}</s> : null}<small>{p.stock <= 4 ? `Only ${p.stock} left` : "In stock"}</small></div>
         </article>)}</div>
         {!filtered.length && <div className="empty"><h3>No exact match yet.</h3><p>Try another search or browse all products.</p><button onClick={() => {setQuery(""); setCategory("All")}}>Show everything</button></div>}
       </section>
