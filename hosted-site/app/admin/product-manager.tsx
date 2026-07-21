@@ -4,6 +4,21 @@ import { FormEvent, useEffect, useState } from "react";
 
 type Product = {id:number; name:string; category:string; description:string; price:number; stock:number; image:string; featured:boolean};
 
+async function optimizeImage(file: File) {
+  if (file.type === "image/gif" || file.size < 350_000) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 1400 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", .82));
+    return blob ? new File([blob], `${file.name.replace(/\.[^.]+$/, "")}.webp`, {type:"image/webp"}) : file;
+  } catch { return file; }
+}
+
 export default function ProductManager({ userEmail }: {userEmail:string}) {
   const [products, setProducts] = useState<Product[]>([]);
   const [message, setMessage] = useState("");
@@ -12,16 +27,20 @@ export default function ProductManager({ userEmail }: {userEmail:string}) {
   useEffect(() => { fetch(`/api/products?fresh=${Date.now()}`, {cache:"no-store"}).then((r) => r.json()).then((x) => setProducts(x.products || [])); }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setBusy(true); setMessage("Uploading product image…");
+    event.preventDefault(); setBusy(true); setMessage("Preparing product image…");
     const form = event.currentTarget;
     const formData = new FormData(form);
     const token = sessionStorage.getItem("smartcommerce_admin_token");
     const image = formData.get("image");
     const uploadData = new FormData();
-    if (image instanceof File) uploadData.append("image", image);
+    if (image instanceof File) uploadData.append("image", await optimizeImage(image));
+    setMessage("Uploading optimized image…");
+    const controller = new AbortController();
+    const uploadTimeout = window.setTimeout(() => controller.abort(), 45000);
     let uploadResponse: Response;
-    try { uploadResponse = await fetch("/api/admin/upload", {method:"POST", headers:{Authorization:`Bearer ${token}`}, body:uploadData}); }
-    catch { setBusy(false); setMessage("The upload was interrupted. Check your connection and try again."); return; }
+    try { uploadResponse = await fetch("/api/admin/upload", {method:"POST", headers:{Authorization:`Bearer ${token}`}, body:uploadData, signal:controller.signal}); }
+    catch { window.clearTimeout(uploadTimeout); setBusy(false); setMessage("The image upload timed out. Try a smaller image or check your connection."); return; }
+    window.clearTimeout(uploadTimeout);
     const upload = await uploadResponse.json();
     if (!uploadResponse.ok) { setBusy(false); setMessage(upload.error || "Could not upload this image."); return; }
     setMessage("Image uploaded. Saving product…");
