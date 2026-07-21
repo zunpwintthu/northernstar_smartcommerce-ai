@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./gradient-theme.css";
 
 export const metadata: Metadata = {
   title: "SmartCommerce AI — Commerce that works everywhere",

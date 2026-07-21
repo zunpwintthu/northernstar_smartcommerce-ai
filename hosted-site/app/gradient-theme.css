@@ -1,0 +1,34 @@
+@keyframes gradientDrift{0%{background-position:0% 35%}50%{background-position:100% 65%}100%{background-position:0% 35%}}
+@keyframes blobDance{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(28px,-24px,0) scale(1.08)}66%{transform:translate3d(-18px,22px,0) scale(.94)}}
+@keyframes softGlow{0%,100%{box-shadow:0 16px 50px #5d9b7b18}50%{box-shadow:0 24px 80px #e36f4530}}
+@keyframes borderFlow{to{background-position:200% center}}
+
+body{background:linear-gradient(135deg,#f7f5ef 0%,#edf7ee 35%,#dceedd 66%,#fff3e8 100%);background-size:220% 220%;animation:gradientDrift 18s ease infinite}
+.hero{position:relative;isolation:isolate;background:linear-gradient(125deg,#eaf7e9 0%,#cfe8d4 32%,#e5f2df 58%,#f8dfca 100%);background-size:260% 260%;animation:gradientDrift 14s ease infinite}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;filter:blur(2px);z-index:-1;pointer-events:none}
+.hero:before{width:330px;height:330px;background:radial-gradient(circle,#a9d5b5aa 0%,#a9d5b500 70%);left:-90px;bottom:-100px;animation:blobDance 12s ease-in-out infinite}
+.hero:after{width:420px;height:420px;background:radial-gradient(circle,#f2b99a99 0%,#f2b99a00 69%);right:28%;top:-220px;animation:blobDance 15s 1.5s ease-in-out infinite reverse}
+.hero-visual{background:linear-gradient(145deg,#f4d88e,#eb9b6d,#d96945,#f3c87b);background-size:250% 250%;animation:riseIn .9s .16s ease both,gradientDrift 9s ease infinite;box-shadow:0 30px 85px #d36f4540}
+.orb{background:linear-gradient(135deg,#fff1c1,#d9edc9,#f8cf9d);background-size:220% 220%;animation:orbit 24s linear infinite,gradientDrift 8s ease infinite}
+.trust{background:linear-gradient(100deg,#103a32,#2e6656,#1a493e,#103a32);background-size:220% auto;animation:gradientDrift 12s ease infinite}
+.product-image{border-radius:18px;box-shadow:0 12px 38px #355d4e14;transition:transform .35s,box-shadow .35s}
+.product:hover .product-image{transform:translateY(-8px);box-shadow:0 25px 65px #315f4d30}
+.product-image:after{content:"";position:absolute;inset:0;background:linear-gradient(130deg,transparent 35%,#ffffff55 50%,transparent 65%);transform:translateX(-120%);transition:transform .75s;pointer-events:none}
+.product:hover .product-image:after{transform:translateX(120%)}
+.filters button{border-radius:999px;transition:.25s}.filters button:hover{background:#d7ebda;transform:translateY(-2px)}
+.filters button.active{background:linear-gradient(100deg,#173d35,#4e8c70,#173d35);background-size:200% auto;animation:borderFlow 5s linear infinite}
+.search{border-radius:999px;background:#ffffffcc;backdrop-filter:blur(10px);box-shadow:0 12px 35px #315f4d12}
+.how{position:relative;overflow:hidden;background:linear-gradient(125deg,#dc744c,#ed936a,#c95d3c,#efad79);background-size:260% 260%;animation:gradientDrift 13s ease infinite}
+.how:after{content:"";position:absolute;width:420px;height:420px;border:1px solid #ffffff22;border-radius:50%;right:-170px;top:-180px;box-shadow:0 0 0 65px #ffffff0b,0 0 0 130px #ffffff08;animation:orbit 26s linear infinite}
+.ai{position:relative}.ai:before{content:"";position:absolute;inset:35px -40px;z-index:-1;border-radius:60% 40% 55% 45%;background:linear-gradient(135deg,#e4f2e4aa,#fff3e4bb,#cfe9d6aa);background-size:240% 240%;animation:gradientDrift 11s ease infinite,blobDance 14s ease-in-out infinite}
+.prompt{border-radius:999px;border:1px solid #ffffffcc;backdrop-filter:blur(14px);animation:softGlow 4s ease-in-out infinite}.prompt button{border-radius:50%;transition:transform .3s}.prompt button:hover{transform:rotate(-20deg) scale(1.1)}
+.primary{border-radius:999px}.drawer{background:linear-gradient(160deg,#fbfaf4,#e8f3e8,#fbe8dc);background-size:220% 220%;animation:gradientDrift 15s ease infinite}
+.admin-page{background:linear-gradient(130deg,#f8f7f0,#dcefdc,#edf8e9,#f8dfcf);background-size:260% 260%;animation:gradientDrift 16s ease infinite}
+.product-form,.inventory-list{border-radius:22px;border:1px solid #ffffffcc;backdrop-filter:blur(16px);animation:riseIn .65s .1s ease both,softGlow 5s ease-in-out infinite}
+.admin-stat{background:linear-gradient(135deg,#173d35,#569474,#e07a51);background-size:240% 240%;animation:pulseBrand 3.5s ease-in-out infinite,gradientDrift 8s ease infinite}
+.login-page{position:relative;overflow:hidden;background:linear-gradient(125deg,#d9eed9,#eef8e8,#f7d9c4,#c8e5d0);background-size:280% 280%;animation:gradientDrift 13s ease infinite}
+.login-page:before,.login-page:after{content:"";position:absolute;border-radius:50%;filter:blur(3px);pointer-events:none}.login-page:before{width:380px;height:380px;left:-160px;bottom:-120px;background:radial-gradient(circle,#8cc4a0aa,transparent 68%);animation:blobDance 10s ease-in-out infinite}.login-page:after{width:420px;height:420px;right:-170px;top:-170px;background:radial-gradient(circle,#f3a37d99,transparent 68%);animation:blobDance 13s ease-in-out infinite reverse}
+.login-card{position:relative;z-index:1;border-radius:28px;overflow:hidden;backdrop-filter:blur(18px);animation:riseIn .7s ease both,softGlow 4.5s ease-in-out infinite}.login-art{background:linear-gradient(140deg,#123b32,#2d6754,#4d8e6d,#173d35);background-size:260% 260%;animation:gradientDrift 12s ease infinite}
+.login-card input,.product-form input,.product-form select,.product-form textarea{border-radius:12px;background:#fbfffacc}.admin-nav{background:linear-gradient(100deg,#f8f7f0dd,#e2f1e2dd,#fff0e7dd);background-size:220% auto;animation:gradientDrift 14s ease infinite}
+
+@media(prefers-reduced-motion:reduce){body,.hero,.hero-visual,.orb,.trust,.how,.filters button.active,.ai:before,.prompt,.drawer,.admin-page,.product-form,.inventory-list,.admin-stat,.login-page,.login-card,.login-art,.admin-nav{animation:none!important}.hero:before,.hero:after,.how:after,.login-page:before,.login-page:after{animation:none!important}}
